@@ -52,7 +52,18 @@ void on_move(GtkWidget * src, gpointer data){
     gui_stats_refresh(gm);
 }
 
+void on_randomize(GtkWidget * src, gpointer data){
+    if(data == NULL || src == NULL){
+        printf("ERROR in on_randomize");
+        return;
+    }
+    GuiModel  * gm = (GuiModel *) data;
+    calculator_randomize_color_settings(gm->color);
+    gui_image_paint_set(gm->zoom, gm, 0, 0);
+}
+
 void gui_free(GuiModel * model){
+    cal_color_free(model->color);
     free(model);
 }
 
@@ -75,8 +86,11 @@ GuiModel * gui_init(){
     gm->btn_right = gtk_button_new_with_label("RIGHT");
     gm->btn_zoom = gtk_button_new_with_label("ZOOM");
     gm->btn_zoom_out = gtk_button_new_with_label("ZOOM OUT");
+    gm->btn_rand = gtk_button_new_with_label("Randomize");
     gm->entry_zoom = gtk_entry_new();
     gm->label_stats = gtk_label_new("Hier steht ihr Text !!");
+
+    gm->color = cal_color_new();
     
 
     gtk_container_add(GTK_CONTAINER(gm->window), gm->grid);
@@ -94,8 +108,9 @@ GuiModel * gui_init(){
     gtk_grid_attach(GTK_GRID(gm->grid_controls), gm-> btn_left, 0,5,1,1);
     gtk_grid_attach(GTK_GRID(gm->grid_controls), gm-> btn_right, 0,6,1,1);
     gtk_grid_attach(GTK_GRID(gm->grid_controls), gm-> label_stats, 0,7,4,1);
+    gtk_grid_attach(GTK_GRID(gm->grid_controls), gm-> btn_rand, 0,8,4,1);
 
-
+    //Eventhandling
     g_signal_connect(gm->window, "destroy", G_CALLBACK(on_destroy), gm);
     g_signal_connect(gm->btn_up, "clicked", G_CALLBACK(on_move), gm);
     g_signal_connect(gm->btn_down, "clicked", G_CALLBACK(on_move), gm);
@@ -103,6 +118,7 @@ GuiModel * gui_init(){
     g_signal_connect(gm->btn_right, "clicked", G_CALLBACK(on_move), gm);
     g_signal_connect(gm->btn_zoom, "clicked", G_CALLBACK(on_zoom), gm);
     g_signal_connect(gm->btn_zoom_out, "clicked", G_CALLBACK(on_zoom), gm);
+    g_signal_connect(gm->btn_rand, "clicked", G_CALLBACK(on_randomize), gm);
 
     gui_stats_refresh(gm);
 
@@ -150,21 +166,16 @@ void gui_image_paint_test(GuiModel * gmodel){
 void gui_image_refresh(GuiModel* gm){
     if(gm == NULL){
         printf("ERROR_NULLPOINTER in gui_image_refresh");
+        return;
     }
     if(gm->pbuf == NULL){
         printf("Pixelbuff NULL");
+        return;
     }   
     gtk_image_set_from_pixbuf(GTK_IMAGE(gm->image), gm->pbuf);
 }
 
 void gui_image_paint_set(double scale, GuiModel * model, double p_x_shift, double p_y_shift){
-
-    Calculator_RGB  * color = calloc(1, sizeof(Calculator_RGB));
-
-    if(color == NULL || model == NULL || scale == 0){
-        printf("ERROR in gui_image_paint_set");
-        return;
-    }
   
     model->pbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, 0, 8, IMAGE_WIDTH, IMAGE_HEIGHT);
     model->x_shift = model->x_shift + p_x_shift * scale;
@@ -180,15 +191,14 @@ void gui_image_paint_set(double scale, GuiModel * model, double p_x_shift, doubl
             y_point = calculator_pixel_to_point_Y(y, scale, IMAGE_HEIGHT, model->y_shift);
             //calculating color
             int iterations = calculator_iterate_point(x_point, y_point);
-            calculator_make_color(color,iterations);
+            calculator_make_color(model->color,iterations);
 
             //painting
 
-            gui_image_put_pixel(model,x,y,color->red,color->green,color->blue,0);
+            gui_image_put_pixel(model,x,y,model->color->red, model->color->green, model->color->blue,0);
         }
     }
     gui_image_refresh(model);
-    free(color);
     gui_image_paint_cross(model);
 }
 

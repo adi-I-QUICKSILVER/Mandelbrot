@@ -1,9 +1,11 @@
 #ifndef GUI_H
 #define GUI_H
 #include <string.h>
+#include <stdio.h>
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include "calculator.h"
+#include "color.h"
 
 #define IMAGE_WIDTH 1200 //Übergangslösung
 #define IMAGE_HEIGHT 800
@@ -20,10 +22,12 @@ typedef struct{
     GtkWidget * btn_right;
     GtkWidget * btn_zoom;
     GtkWidget * btn_zoom_out;
+    GtkWidget * btn_rand;
     GtkWidget * entry_zoom;
     GtkWidget * label_stats; 
     GtkWidget * image;
     GdkPixbuf * pbuf;
+    Cal_col * color;
     double zoom;
     double x_shift;
     double y_shift;

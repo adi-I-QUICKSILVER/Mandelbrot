@@ -27,17 +27,8 @@ int calculator_iterate_point(double x_c, double y_c){
     return -1; // TODO: Genauer auf Konvergenz untersuchen
 }
 
-void calculator_make_color(Calculator_RGB * color, int iterations){
-    if(iterations == -1){
-        color->red = 0;
-        color->green = 0;
-        color->blue = 0;
-    }
-    else{
-        color->red = 0 + 4* iterations;
-        color->green = 30 + 3* iterations;
-        color->blue = 100 + 2* iterations;
-    }
+void calculator_make_color(Cal_col * color, int iterations){
+    cal_color_generate(color, iterations);
     
 }
 
@@ -53,4 +44,8 @@ double calculator_pixel_to_point_Y(int pix_comp, double factor, double max, doub
     double point_comp = pix_comp * (-1) + max / 2; // Umwandlung in ein normales Koordinatensystem
     point_comp = (point_comp * factor  - y_shift);
     return point_comp;
+}
+
+void calculator_randomize_color_settings(Cal_col * color){
+    cal_color_random(color);
 }
