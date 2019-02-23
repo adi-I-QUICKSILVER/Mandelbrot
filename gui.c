@@ -181,24 +181,17 @@ void gui_image_paint_set(double scale, GuiModel * model, double p_x_shift, doubl
     model->x_shift = model->x_shift + p_x_shift * scale;
     model->y_shift = model->y_shift + p_y_shift * scale;
 
-  
-    double x_point = 0;
-    double y_point = 0;
     for(int y = 0; y<IMAGE_HEIGHT; y++){
         for(int x = 0; x<IMAGE_WIDTH; x++){
-            //converting to another coord-syst.
-            x_point = calculator_pixel_to_point_X(x, scale, IMAGE_WIDTH, model->x_shift);
-            y_point = calculator_pixel_to_point_Y(y, scale, IMAGE_HEIGHT, model->y_shift);
-            //calculating color
-            int iterations = calculator_iterate_point(x_point, y_point);
-            calculator_make_color(model->color,iterations);
-
-            //painting
-
+            //Converts coord of pixels to corresponding coord of points in MB set; will test if the point is in the set; generates a color
+            calculator_search_point_in_mandelbrot(x, y, model->x_shift, model->y_shift, scale, IMAGE_WIDTH, IMAGE_HEIGHT, model->color);
+            //Will set a pixel in the buffer
             gui_image_put_pixel(model,x,y,model->color->red, model->color->green, model->color->blue,0);
         }
     }
+    //Refreshes image and draws the buffer
     gui_image_refresh(model);
+    //Will paint a white pixel to mark the center
     gui_image_paint_cross(model);
 }
 

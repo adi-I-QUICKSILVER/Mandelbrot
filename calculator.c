@@ -1,7 +1,8 @@
 #include "calculator.h"
 
+//Will test whether a given point is in the Mandelbrot set or not
 //returns -1 for convergent and number of iterations if divergent
-int calculator_iterate_point(double x_c, double y_c){
+int calculator_iterate_point_MB(double x_c, double y_c){
    double x_alt = 0;
    double y_alt = 0;
    double x_new = 0;
@@ -48,4 +49,17 @@ double calculator_pixel_to_point_Y(int pix_comp, double factor, double max, doub
 
 void calculator_randomize_color_settings(Cal_col * color){
     cal_color_random(color);
+}
+
+void calculator_search_point_in_mandelbrot(
+    int x, int y, 
+    double x_shift, double y_shift, 
+    double scale, int width, int height, Cal_col * color){
+
+    //converting to another coord-syst.
+    double x_point = calculator_pixel_to_point_X(x, scale, width, x_shift);
+    double y_point = calculator_pixel_to_point_Y(y, scale, height, y_shift);
+    //calculating color
+    int iterations = calculator_iterate_point_MB(x_point, y_point);
+    calculator_make_color(color,iterations);
 }
