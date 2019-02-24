@@ -26,6 +26,7 @@ typedef struct{
     GtkWidget * entry_zoom;
     GtkWidget * label_stats; 
     GtkWidget * image;
+    GtkWidget * combo_sets;
     GdkPixbuf * pbuf;
     Cal_col * color;
     double zoom;

@@ -11,6 +11,9 @@ void on_zoom(GtkWidget *src, gpointer data){
         return;
     }
     GuiModel * gm = (GuiModel*) data;
+    if(gtk_combo_box_get_active(GTK_COMBO_BOX(gm->combo_sets)) == NO_SET){
+        return;
+    }
     double factor = atof(gtk_entry_get_text(GTK_ENTRY(gm->entry_zoom)));
     if(factor == 0.0){
         return;
@@ -33,6 +36,9 @@ void on_move(GtkWidget * src, gpointer data){
 
     GuiModel  * gm = (GuiModel *) data;
 
+    if(gtk_combo_box_get_active(GTK_COMBO_BOX(gm->combo_sets)) == NO_SET){
+        return;
+    }
 
     if(src == gm->btn_up){
         gui_image_paint_set(gm->zoom, gm, 0, -MOVE_STEPS);
@@ -58,6 +64,11 @@ void on_randomize(GtkWidget * src, gpointer data){
         return;
     }
     GuiModel  * gm = (GuiModel *) data;
+
+    if(gtk_combo_box_get_active(GTK_COMBO_BOX(gm->combo_sets)) == NO_SET){
+        return;
+    }
+
     calculator_randomize_color_settings(gm->color);
     gui_image_paint_set(gm->zoom, gm, 0, 0);
 }
@@ -89,8 +100,17 @@ GuiModel * gui_init(){
     gm->btn_rand = gtk_button_new_with_label("Randomize");
     gm->entry_zoom = gtk_entry_new();
     gm->label_stats = gtk_label_new("Hier steht ihr Text !!");
+    gm->combo_sets = gtk_combo_box_text_new();
 
     gm->color = cal_color_new();
+
+    //Builds combobox
+    const char *sets[] = {"Select a set", "Mandelbrot set", "Julia set"};
+    for (int i = 0; i < G_N_ELEMENTS (sets); i++){
+  	    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (gm->combo_sets), sets[i]);
+    }
+    gtk_combo_box_set_active (GTK_COMBO_BOX (gm->combo_sets), 0);
+
     
 
     gtk_container_add(GTK_CONTAINER(gm->window), gm->grid);
@@ -109,6 +129,7 @@ GuiModel * gui_init(){
     gtk_grid_attach(GTK_GRID(gm->grid_controls), gm-> btn_right, 0,6,1,1);
     gtk_grid_attach(GTK_GRID(gm->grid_controls), gm-> label_stats, 0,7,4,1);
     gtk_grid_attach(GTK_GRID(gm->grid_controls), gm-> btn_rand, 0,8,4,1);
+    gtk_grid_attach(GTK_GRID(gm->grid_controls), gm-> combo_sets, 0,9,4,1);
 
     //Eventhandling
     g_signal_connect(gm->window, "destroy", G_CALLBACK(on_destroy), gm);
@@ -183,8 +204,15 @@ void gui_image_paint_set(double scale, GuiModel * model, double p_x_shift, doubl
 
     for(int y = 0; y<IMAGE_HEIGHT; y++){
         for(int x = 0; x<IMAGE_WIDTH; x++){
-            //Converts coord of pixels to corresponding coord of points in MB set; will test if the point is in the set; generates a color
-            calculator_search_point_in_mandelbrot(x, y, model->x_shift, model->y_shift, scale, IMAGE_WIDTH, IMAGE_HEIGHT, model->color);
+
+            if(gtk_combo_box_get_active(GTK_COMBO_BOX(model->combo_sets)) == MB_SET){
+                //Converts coord of pixels to corresponding coord of points in MB set; will test if the point is in the set; generates a color
+                calculator_search_point_in_set(x, y, model->x_shift, model->y_shift, scale, IMAGE_WIDTH, IMAGE_HEIGHT, model->color,&calculator_iterate_point_MB);
+            }
+            else if(gtk_combo_box_get_active(GTK_COMBO_BOX(model->combo_sets)) == J_SET){
+                //Converts coord of pixels to corresponding coord of points in Julia set; will test if the point is in the set; generates a color
+                calculator_search_point_in_set(x, y, model->x_shift, model->y_shift, scale, IMAGE_WIDTH, IMAGE_HEIGHT, model->color,&calculator_iterate_point_JM);
+            }
             //Will set a pixel in the buffer
             gui_image_put_pixel(model,x,y,model->color->red, model->color->green, model->color->blue,0);
         }
