@@ -83,15 +83,15 @@ void calculator_randomize_color_settings(Cal_col * color){
 }
 
 //Converts coord of pixels to corresponding coord of points in MB set; will test if the point is in the set; generates a color
-void calculator_search_point_in_set(
+int calculator_search_point_in_set(
     int x, int y, 
     double x_shift, double y_shift, 
-    double scale, int width, int height, Cal_col * color, int calculator_iterate(double x, double y)){
+    double scale, int width, int height, int calculator_iterate(double x, double y)){
 
     //converting to another coord-syst.
     double x_point = calculator_pixel_to_point_X(x, scale, width, x_shift);
     double y_point = calculator_pixel_to_point_Y(y, scale, height, y_shift);
     //calculating color
     int iterations = calculator_iterate(x_point, y_point);
-    calculator_make_color(color,iterations);
+    return iterations;
 }

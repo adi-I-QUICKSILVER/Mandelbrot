@@ -73,6 +73,18 @@ void on_randomize(GtkWidget * src, gpointer data){
     gui_image_paint_set(gm->zoom, gm, 0, 0);
 }
 
+void on_changed_combo_sets(GtkWidget * src, gpointer data){
+    if(data == NULL || src == NULL){
+        printf("ERROR in on_randomize");
+        return;
+    }
+    GuiModel  * gm = (GuiModel *) data;
+    gm->zoom = 0.05;
+    gm->y_shift = 0;
+    gm->x_shift = 0;
+    gui_image_paint_set(gm->zoom, gm, gm->x_shift, gm->y_shift);
+}
+
 void gui_free(GuiModel * model){
     cal_color_free(model->color);
     free(model);
@@ -140,6 +152,7 @@ GuiModel * gui_init(){
     g_signal_connect(gm->btn_zoom, "clicked", G_CALLBACK(on_zoom), gm);
     g_signal_connect(gm->btn_zoom_out, "clicked", G_CALLBACK(on_zoom), gm);
     g_signal_connect(gm->btn_rand, "clicked", G_CALLBACK(on_randomize), gm);
+    g_signal_connect(gm->combo_sets, "changed", G_CALLBACK(on_changed_combo_sets), gm);
 
     gui_stats_refresh(gm);
 
@@ -201,19 +214,21 @@ void gui_image_paint_set(double scale, GuiModel * model, double p_x_shift, doubl
     model->pbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, 0, 8, IMAGE_WIDTH, IMAGE_HEIGHT);
     model->x_shift = model->x_shift + p_x_shift * scale;
     model->y_shift = model->y_shift + p_y_shift * scale;
+    int iterations = 0;
 
     for(int y = 0; y<IMAGE_HEIGHT; y++){
         for(int x = 0; x<IMAGE_WIDTH; x++){
 
             if(gtk_combo_box_get_active(GTK_COMBO_BOX(model->combo_sets)) == MB_SET){
                 //Converts coord of pixels to corresponding coord of points in MB set; will test if the point is in the set; generates a color
-                calculator_search_point_in_set(x, y, model->x_shift, model->y_shift, scale, IMAGE_WIDTH, IMAGE_HEIGHT, model->color,&calculator_iterate_point_MB);
+                iterations = calculator_search_point_in_set(x, y, model->x_shift, model->y_shift, scale, IMAGE_WIDTH, IMAGE_HEIGHT, &calculator_iterate_point_MB);
             }
             else if(gtk_combo_box_get_active(GTK_COMBO_BOX(model->combo_sets)) == J_SET){
                 //Converts coord of pixels to corresponding coord of points in Julia set; will test if the point is in the set; generates a color
-                calculator_search_point_in_set(x, y, model->x_shift, model->y_shift, scale, IMAGE_WIDTH, IMAGE_HEIGHT, model->color,&calculator_iterate_point_JM);
+                iterations = calculator_search_point_in_set(x, y, model->x_shift, model->y_shift, scale, IMAGE_WIDTH, IMAGE_HEIGHT, &calculator_iterate_point_JM);
             }
             //Will set a pixel in the buffer
+            calculator_make_color(model->color,iterations);
             gui_image_put_pixel(model,x,y,model->color->red, model->color->green, model->color->blue,0);
         }
     }

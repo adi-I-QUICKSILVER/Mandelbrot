@@ -19,11 +19,11 @@ void calculator_make_color(Cal_col * color, int iterations);
 double calculator_pixel_to_point_X(int pix_comp, double factor, double max, double x_shift);
 double calculator_pixel_to_point_Y(int pix_comp, double factor, double max, double y_shift);
 void calculator_randomize_color_settings(Cal_col * color);
-void calculator_search_point_in_set(
+int calculator_search_point_in_set(
     int x, int y, 
     double x_shift, double y_shift, 
     double scale, int width, int height, 
-    Cal_col * color, int iterate(double x, double y));
+    int iterate(double x, double y));
 
 
 #endif

@@ -45,5 +45,6 @@ void gui_stats_refresh(GuiModel * model);
 void on_move(GtkWidget * src, gpointer data);
 void on_destroy(GtkWidget * src, gpointer data);
 void on_zoom(GtkWidget * src, gpointer data);
+void on_changed_combo_sets(GtkWidget * src, gpointer data);
 
 #endif

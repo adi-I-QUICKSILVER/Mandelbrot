@@ -46,9 +46,57 @@ void cal_color_generate(Cal_col * color, int iterations){
     }
     else{
 
-        color->red = color->green_delt + color->red_m * iterations;
-        color->green = color->red_delt + color->green_m * iterations;
-        color->blue = color->blue_delt + color->blue_m * iterations;
+        double hue = iterations % 360;
+        double sat = 1 - (iterations % 50) * 0.02;
+        double val = 1;
+
+        double c = sat * val;
+        double x = c * (1 - abs(hue / 60) % 2 -1);
+        double m = val - c;
+
+        double re = 0;
+        double gr = 0;
+        double bl = 0;
+
+        if(hue < 60){
+            re = c;
+            gr = x;
+            bl = 0;
+
+        }else if(hue < 120){
+            re = x;
+            gr = c;
+            bl = 0;
+
+        }else if(hue < 180){
+            re = 0;
+            gr = c;
+            bl = x;
+        }else if(hue < 240){
+            re = 0;
+            gr = x;
+            bl = c;
+        }else if(hue < 300){
+            re = x;
+            gr = 0;
+            bl = c;
+        }else if(hue < 360){
+            re = c;
+            gr = 0;
+            bl = x;
+        }
+
+        color->red = (re + m) * 255;
+        color->green = (gr + m) * 255;
+        color->blue = (bl + m) * 255;
+
+        //color->red = color->green_delt + color->red_m * iterations;
+        //color->green = color->red_delt + color->green_m * iterations;
+        //color->blue = color->blue_delt + color->blue_m * iterations;
+
+
     }
 }
+
+
 
