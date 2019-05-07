@@ -46,7 +46,7 @@ void cal_color_generate(Cal_col * color, int iterations){
     }
     else{
 
-        double hue = iterations % 360;
+/*        double hue = iterations % 360;
         double sat = 1 - (iterations % 50) * 0.02;
         double val = 1;
 
@@ -89,10 +89,10 @@ void cal_color_generate(Cal_col * color, int iterations){
         color->red = (re + m) * 255;
         color->green = (gr + m) * 255;
         color->blue = (bl + m) * 255;
-
-        //color->red = color->green_delt + color->red_m * iterations;
-        //color->green = color->red_delt + color->green_m * iterations;
-        //color->blue = color->blue_delt + color->blue_m * iterations;
+*/
+        color->red = color->green_delt + color->red_m * iterations;
+        color->green = color->red_delt + color->green_m * iterations;
+        color->blue = color->blue_delt + color->blue_m * iterations;
 
 
     }
